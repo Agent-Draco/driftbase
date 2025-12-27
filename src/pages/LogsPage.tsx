@@ -24,7 +24,8 @@ export default function LogsPage() {
   
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedSleepover, setSelectedSleepover] = useState('');
-  const [notes, setNotes] = useState('');
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const [highlightsText, setHighlightsText] = useState('');
 
   const handleAddLog = async () => {
@@ -34,7 +35,7 @@ export default function LogsPage() {
     }
 
     const highlights = highlightsText.split('\n').filter(h => h.trim());
-    const { error } = await createLog(selectedSleepover, notes, highlights);
+    const { error } = await createLog(selectedSleepover, title || 'Sleepover Log', content, highlights);
 
     if (error) {
       toast({ title: 'Failed to create log', description: error.message, variant: 'destructive' });
@@ -42,7 +43,8 @@ export default function LogsPage() {
       toast({ title: 'Log created!' });
       setIsAddOpen(false);
       setSelectedSleepover('');
-      setNotes('');
+      setTitle('');
+      setContent('');
       setHighlightsText('');
     }
   };
@@ -91,6 +93,14 @@ export default function LogsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Epic Sleepover Night"
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label>Highlights (one per line)</Label>
                     <Textarea
                       value={highlightsText}
@@ -102,8 +112,8 @@ export default function LogsPage() {
                   <div className="space-y-2">
                     <Label>Notes</Label>
                     <Textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
                       placeholder="Any additional notes..."
                     />
                   </div>
@@ -136,7 +146,7 @@ export default function LogsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-xl font-bold text-card-foreground">
-                        {log.sleepover?.title || 'Sleepover Log'}
+                        {log.title || log.sleepover?.title || 'Sleepover Log'}
                       </CardTitle>
                       <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
@@ -178,10 +188,10 @@ export default function LogsPage() {
                     )}
 
                     {/* Notes */}
-                    {log.notes && (
+                    {log.content && (
                       <div className="rounded-xl bg-accent/50 p-3">
                         <p className="text-sm italic text-muted-foreground">
-                          "{log.notes}"
+                          "{log.content}"
                         </p>
                       </div>
                     )}

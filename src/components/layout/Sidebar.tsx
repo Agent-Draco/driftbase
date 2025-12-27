@@ -147,12 +147,12 @@ export function Sidebar({
                 <Avatar className="h-9 w-9 shrink-0">
                   {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.display_name || ''} />}
                   <AvatarFallback className="bg-secondary text-secondary-foreground text-sm font-semibold">
-                    {getInitials(profile?.display_name || profile?.username)}
+                    {getInitials(profile?.display_name)}
                   </AvatarFallback>
                 </Avatar>
                 {!collapsed && <div className="overflow-hidden text-left">
                     <p className="truncate text-sm font-medium text-sidebar-foreground">
-                      {profile?.display_name || profile?.username || 'User'}
+                      {profile?.display_name || 'User'}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">
                       {user?.email || 'Signed in'}

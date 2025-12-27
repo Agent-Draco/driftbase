@@ -5,12 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 interface Message {
   id: string;
   content: string;
-  sender_id: string;
-  created_at: string;
+  user_id: string;
+  created_at: string | null;
   profiles?: {
     id: string;
-    username: string | null;
-    display_name: string | null;
+    display_name: string;
     avatar_url: string | null;
   };
 }
@@ -30,9 +29,8 @@ export function useRealtimeChat() {
         .from('messages')
         .select(`
           *,
-          profiles:sender_id (
+          profiles:user_id (
             id,
-            username,
             display_name,
             avatar_url
           )
@@ -41,7 +39,7 @@ export function useRealtimeChat() {
         .limit(100);
 
       if (!error && data) {
-        setMessages(data as Message[]);
+        setMessages(data as unknown as Message[]);
       }
       setLoading(false);
     };
@@ -62,14 +60,14 @@ export function useRealtimeChat() {
           // Fetch the profile for the new message
           const { data: profile } = await supabase
             .from('profiles')
-            .select('id, username, display_name, avatar_url')
-            .eq('id', payload.new.sender_id)
+            .select('id, display_name, avatar_url')
+            .eq('id', payload.new.user_id)
             .single();
 
           const newMessage = {
             ...payload.new,
             profiles: profile
-          } as Message;
+          } as unknown as Message;
 
           setMessages(prev => [...prev, newMessage]);
         }
@@ -101,7 +99,7 @@ export function useRealtimeChat() {
       .from('messages')
       .insert({
         content: content.trim(),
-        sender_id: user.id
+        user_id: user.id
       });
 
     return { error };

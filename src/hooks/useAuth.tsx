@@ -1,15 +1,14 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 
 interface Profile {
   id: string;
-  username: string | null;
-  display_name: string | null;
+  display_name: string;
   bio: string | null;
   avatar_url: string | null;
-  status: 'online' | 'away' | 'offline';
+  is_online: boolean;
+  last_seen: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -19,7 +18,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, displayName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
@@ -57,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setTimeout(() => {
             fetchProfile(session.user.id);
             // Update user status to online
-            supabase.from('profiles').update({ status: 'online' }).eq('id', session.user.id);
+            supabase.from('profiles').update({ is_online: true, last_seen: new Date().toISOString() }).eq('id', session.user.id);
           }, 0);
         } else {
           setProfile(null);
@@ -79,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, username: string) => {
+  const signUp = async (email: string, password: string, displayName: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -88,8 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          username,
-          display_name: username,
+          display_name: displayName,
         }
       }
     });
@@ -108,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     if (user) {
-      await supabase.from('profiles').update({ status: 'offline' }).eq('id', user.id);
+      await supabase.from('profiles').update({ is_online: false, last_seen: new Date().toISOString() }).eq('id', user.id);
     }
     await supabase.auth.signOut();
     setProfile(null);

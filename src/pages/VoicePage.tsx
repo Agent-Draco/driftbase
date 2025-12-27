@@ -222,7 +222,7 @@ export default function VoicePage() {
                                   <AvatarImage src={p.profiles.avatar_url} />
                                 )}
                                 <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
-                                  {getInitials(p.profiles?.display_name || p.profiles?.username)}
+                                  {getInitials(p.profiles?.display_name)}
                                 </AvatarFallback>
                               </Avatar>
                             ))}

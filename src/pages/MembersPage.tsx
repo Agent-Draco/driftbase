@@ -11,7 +11,7 @@ export default function MembersPage() {
   const { profiles, onlineProfiles, loading } = useProfiles();
 
   const filteredMembers = profiles.filter((profile) =>
-    (profile.display_name || profile.username || '').toLowerCase().includes(search.toLowerCase())
+    (profile.display_name || '').toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) {
@@ -59,12 +59,12 @@ export default function MembersPage() {
                 key={profile.id} 
                 member={{
                   id: profile.id,
-                  name: profile.display_name || profile.username || 'Unknown',
-                  initials: (profile.display_name || profile.username || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+                  name: profile.display_name || 'Unknown',
+                  initials: (profile.display_name || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
                   color: 'bg-primary text-primary-foreground',
-                  status: profile.status,
+                  status: profile.is_online ? 'online' : 'offline',
                   bio: profile.bio || '',
-                  joinedDate: new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+                  joinedDate: profile.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
                   avatar_url: profile.avatar_url || undefined,
                 }}
               />

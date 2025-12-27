@@ -1,18 +1,28 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MessageCircle, Calendar, Users, Moon, Trophy, Sparkles, ArrowRight } from "lucide-react";
-import { mockMembers, mockEvents, mockMessages } from "@/data/mockData";
 import { differenceInDays, isFuture } from "date-fns";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSleepovers } from "@/hooks/useSleepovers";
+import { useProfiles } from "@/hooks/useProfiles";
+import { useRealtimeChat } from "@/hooks/useRealtimeChat";
+
 const Index = () => {
-  const nextSleepover = mockEvents.filter(e => e.type === "sleepover" && isFuture(e.date)).sort((a, b) => a.date.getTime() - b.date.getTime())[0];
-  const daysUntil = nextSleepover ? differenceInDays(nextSleepover.date, new Date()) : null;
-  const onlineMembers = mockMembers.filter(m => m.status === "online");
+  const { sleepovers } = useSleepovers();
+  const { profiles, onlineProfiles } = useProfiles();
+  const { messages } = useRealtimeChat();
+
+  const nextSleepover = sleepovers.filter(s => isFuture(new Date(s.event_date))).sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())[0];
+  const daysUntil = nextSleepover ? differenceInDays(new Date(nextSleepover.event_date), new Date()) : null;
+
+  const getInitials = (name: string | null) => {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   return <AppLayout>
       <div className="flex h-screen flex-col overflow-auto">
-        {/* Hero Section */}
         <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/5 to-background px-8 py-12">
           <div className="absolute inset-0 opacity-30">
             <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
@@ -25,18 +35,12 @@ const Index = () => {
                 <span className="text-3xl font-bold text-primary-foreground">D</span>
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-foreground">
-                  Welcome to Driftaculars
-                </h1>
-                <p className="mt-1 text-lg text-muted-foreground">
-                  Your crew's home base for planning epic sleepovers ✨
-                </p>
+                <h1 className="text-4xl font-bold text-foreground">Welcome to Driftaculars</h1>
+                <p className="mt-1 text-lg text-muted-foreground">Your crew's home base for planning epic sleepovers ✨</p>
               </div>
             </div>
 
-            {/* Quick Stats */}
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {/* Sleepover Countdown */}
               {nextSleepover && daysUntil !== null && <Card className="border-primary/20 bg-primary/5 shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
@@ -45,15 +49,12 @@ const Index = () => {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Next Sleepover</p>
-                        <p className="text-2xl font-bold text-primary">
-                          {daysUntil} days
-                        </p>
+                        <p className="text-2xl font-bold text-primary">{daysUntil} days</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>}
 
-              {/* Online Members */}
               <Card className="border-[hsl(var(--tertiary))]/20 bg-[hsl(var(--tertiary))]/5 shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
@@ -62,15 +63,12 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Online Now</p>
-                      <p className="text-2xl font-bold text-[hsl(var(--tertiary))]">
-                        {onlineMembers.length}
-                      </p>
+                      <p className="text-2xl font-bold text-[hsl(var(--tertiary))]">{onlineProfiles.length}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Messages Today */}
               <Card className="border-secondary/20 bg-secondary/5 shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
@@ -79,15 +77,12 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Recent Messages</p>
-                      <p className="text-2xl font-bold text-secondary">
-                        {mockMessages.length}
-                      </p>
+                      <p className="text-2xl font-bold text-secondary">{messages.length}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Events */}
               <Card className="border-[hsl(var(--warning))]/20 bg-[hsl(var(--warning))]/5 shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
@@ -96,9 +91,7 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Upcoming Events</p>
-                      <p className="text-2xl font-bold text-[hsl(var(--warning))]">
-                        {mockEvents.length}
-                      </p>
+                      <p className="text-2xl font-bold text-[hsl(var(--warning))]">{sleepovers.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -107,12 +100,10 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Quick Actions Grid */}
         <div className="flex-1 p-8">
           <div className="mx-auto max-w-5xl">
             <h2 className="mb-6 text-xl font-semibold text-foreground">Quick Actions</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Total Chat */}
               <Link to="/chat" className="group">
                 <Card className="h-full border-border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                   <CardContent className="flex items-start gap-4 p-5">
@@ -121,16 +112,13 @@ const Index = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-card-foreground">Total Chat</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Join the conversation with everyone
-                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">Join the conversation with everyone</p>
                     </div>
                     <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </CardContent>
                 </Card>
               </Link>
 
-              {/* Calendar */}
               <Link to="/calendar" className="group">
                 <Card className="h-full border-border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                   <CardContent className="flex items-start gap-4 p-5">
@@ -139,16 +127,13 @@ const Index = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-card-foreground">Calendar</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Plan your next sleepover
-                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">Plan your next sleepover</p>
                     </div>
                     <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </CardContent>
                 </Card>
               </Link>
 
-              {/* Members */}
               <Link to="/members" className="group">
                 <Card className="h-full border-border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                   <CardContent className="flex items-start gap-4 p-5">
@@ -157,16 +142,13 @@ const Index = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-card-foreground">Members</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        See who's in the crew
-                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">See who's in the crew</p>
                     </div>
                     <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </CardContent>
                 </Card>
               </Link>
 
-              {/* Hall of Fame */}
               <Link to="/hall-of-fame" className="group">
                 <Card className="h-full border-border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                   <CardContent className="flex items-start gap-4 p-5">
@@ -175,16 +157,13 @@ const Index = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-card-foreground">Hall of Fame</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Celebrate legendary moments
-                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">Celebrate legendary moments</p>
                     </div>
                     <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </CardContent>
                 </Card>
               </Link>
 
-              {/* Traditions */}
               <Link to="/traditions" className="group">
                 <Card className="h-full border-border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                   <CardContent className="flex items-start gap-4 p-5">
@@ -193,16 +172,13 @@ const Index = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-card-foreground">Traditions</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        What makes us unique
-                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">What makes us unique</p>
                     </div>
                     <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </CardContent>
                 </Card>
               </Link>
 
-              {/* Sleepover Logs */}
               <Link to="/logs" className="group">
                 <Card className="h-full border-border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                   <CardContent className="flex items-start gap-4 p-5">
@@ -211,9 +187,7 @@ const Index = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-card-foreground">Sleepover Logs</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Relive past memories
-                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">Relive past memories</p>
                     </div>
                     <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </CardContent>
@@ -221,19 +195,17 @@ const Index = () => {
               </Link>
             </div>
 
-            {/* Online Members */}
             <div className="mt-8">
               <h2 className="mb-4 text-xl font-semibold text-foreground">Who's Online</h2>
               <div className="flex flex-wrap gap-3">
-                {onlineMembers.map(member => <div key={member.id} className="flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 shadow-sm">
+                {onlineProfiles.map(profile => <div key={profile.id} className="flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 shadow-sm">
                     <Avatar className="h-6 w-6">
-                      <AvatarFallback className={`text-xs font-semibold ${member.color}`}>
-                        {member.initials}
+                      {profile.avatar_url && <AvatarImage src={profile.avatar_url} />}
+                      <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
+                        {getInitials(profile.display_name)}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-card-foreground">
-                      {member.name}
-                    </span>
+                    <span className="text-sm font-medium text-card-foreground">{profile.display_name}</span>
                     <span className="h-2 w-2 rounded-full bg-[hsl(var(--success))]" />
                   </div>)}
               </div>

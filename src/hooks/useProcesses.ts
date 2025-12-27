@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { Json } from '@/integrations/supabase/types';
 
 interface Process {
   id: string;
-  name: string;
+  title: string;
+  icon: string | null;
   steps: string[];
   created_by: string | null;
-  created_at: string;
+  created_at: string | null;
   creator?: {
-    display_name: string | null;
-    username: string | null;
+    display_name: string;
   };
 }
 
@@ -24,43 +25,52 @@ export function useProcesses() {
       .from('processes')
       .select(`
         *,
-        creator:created_by (display_name, username)
+        creator:created_by (display_name)
       `)
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      setProcesses(data as Process[]);
+      const mapped = data.map(p => ({
+        ...p,
+        steps: Array.isArray(p.steps) ? p.steps as string[] : []
+      }));
+      setProcesses(mapped as unknown as Process[]);
     }
     setLoading(false);
   };
 
-  const createProcess = async (name: string, steps: string[]) => {
+  const createProcess = async (title: string, steps: string[], icon?: string) => {
     if (!user) return { error: new Error('Not authenticated') };
 
     const { data, error } = await supabase
       .from('processes')
       .insert({
-        name,
-        steps,
+        title,
+        steps: steps as unknown as Json,
+        icon: icon || '📋',
         created_by: user.id,
       })
       .select(`
         *,
-        creator:created_by (display_name, username)
+        creator:created_by (display_name)
       `)
       .single();
 
     if (!error && data) {
-      setProcesses(prev => [data as Process, ...prev]);
+      const mapped = {
+        ...data,
+        steps: Array.isArray(data.steps) ? data.steps as string[] : []
+      };
+      setProcesses(prev => [mapped as unknown as Process, ...prev]);
     }
 
     return { data, error };
   };
 
-  const updateProcess = async (id: string, name: string, steps: string[]) => {
+  const updateProcess = async (id: string, title: string, steps: string[], icon?: string) => {
     const { error } = await supabase
       .from('processes')
-      .update({ name, steps })
+      .update({ title, steps: steps as unknown as Json, icon })
       .eq('id', id);
 
     if (!error) {

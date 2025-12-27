@@ -5,10 +5,11 @@ import { useAuth } from './useAuth';
 interface SleepoverLog {
   id: string;
   sleepover_id: string;
-  notes: string | null;
-  highlights: string[];
+  title: string;
+  content: string | null;
+  highlights: string[] | null;
   created_by: string | null;
-  created_at: string;
+  created_at: string | null;
   sleepover?: {
     id: string;
     title: string;
@@ -16,8 +17,7 @@ interface SleepoverLog {
     location: string | null;
   };
   creator?: {
-    display_name: string | null;
-    username: string | null;
+    display_name: string;
   };
 }
 
@@ -32,45 +32,46 @@ export function useLogs() {
       .select(`
         *,
         sleepover:sleepover_id (id, title, event_date, location),
-        creator:created_by (display_name, username)
+        creator:created_by (display_name)
       `)
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      setLogs(data as SleepoverLog[]);
+      setLogs(data as unknown as SleepoverLog[]);
     }
     setLoading(false);
   };
 
-  const createLog = async (sleepoverId: string, notes?: string, highlights?: string[]) => {
+  const createLog = async (sleepoverId: string, title: string, content?: string, highlights?: string[]) => {
     if (!user) return { error: new Error('Not authenticated') };
 
     const { data, error } = await supabase
       .from('sleepover_logs')
       .insert({
         sleepover_id: sleepoverId,
-        notes: notes || null,
+        title,
+        content: content || null,
         highlights: highlights || [],
         created_by: user.id,
       })
       .select(`
         *,
         sleepover:sleepover_id (id, title, event_date, location),
-        creator:created_by (display_name, username)
+        creator:created_by (display_name)
       `)
       .single();
 
     if (!error && data) {
-      setLogs(prev => [data as SleepoverLog, ...prev]);
+      setLogs(prev => [data as unknown as SleepoverLog, ...prev]);
     }
 
     return { data, error };
   };
 
-  const updateLog = async (id: string, notes?: string, highlights?: string[]) => {
+  const updateLog = async (id: string, title: string, content?: string, highlights?: string[]) => {
     const { error } = await supabase
       .from('sleepover_logs')
-      .update({ notes, highlights })
+      .update({ title, content, highlights })
       .eq('id', id);
 
     if (!error) {

@@ -5,21 +5,20 @@ import { useAuth } from './useAuth';
 interface VoiceRoom {
   id: string;
   name: string;
-  created_by: string | null;
-  is_active: boolean;
-  created_at: string;
+  description: string | null;
+  is_active: boolean | null;
+  created_at: string | null;
 }
 
 interface RoomParticipant {
   id: string;
   room_id: string;
   user_id: string;
-  is_muted: boolean;
-  joined_at: string;
+  is_muted: boolean | null;
+  joined_at: string | null;
   profiles?: {
     id: string;
-    display_name: string | null;
-    username: string | null;
+    display_name: string;
     avatar_url: string | null;
   };
 }
@@ -41,7 +40,7 @@ export function useVoiceRooms() {
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      setRooms(data);
+      setRooms(data as VoiceRoom[]);
       // Fetch participants for each room
       for (const room of data) {
         await fetchParticipants(room.id);
@@ -52,29 +51,29 @@ export function useVoiceRooms() {
 
   const fetchParticipants = async (roomId: string) => {
     const { data, error } = await supabase
-      .from('voice_room_participants')
+      .from('voice_participants')
       .select(`
         *,
-        profiles:user_id (id, display_name, username, avatar_url)
+        profiles:user_id (id, display_name, avatar_url)
       `)
       .eq('room_id', roomId);
 
     if (!error && data) {
-      setParticipants(prev => ({ ...prev, [roomId]: data as RoomParticipant[] }));
+      setParticipants(prev => ({ ...prev, [roomId]: data as unknown as RoomParticipant[] }));
     }
   };
 
-  const createRoom = async (name: string) => {
+  const createRoom = async (name: string, description?: string) => {
     if (!user) return { error: new Error('Not authenticated') };
 
     const { data, error } = await supabase
       .from('voice_rooms')
-      .insert({ name, created_by: user.id })
+      .insert({ name, description: description || null })
       .select()
       .single();
 
     if (!error && data) {
-      setRooms(prev => [data, ...prev]);
+      setRooms(prev => [data as VoiceRoom, ...prev]);
     }
 
     return { data, error };
@@ -96,7 +95,7 @@ export function useVoiceRooms() {
 
       // Join the room in database
       const { error } = await supabase
-        .from('voice_room_participants')
+        .from('voice_participants')
         .insert({ room_id: roomId, user_id: user.id, is_muted: false });
 
       if (error) {
@@ -123,7 +122,7 @@ export function useVoiceRooms() {
     }
 
     await supabase
-      .from('voice_room_participants')
+      .from('voice_participants')
       .delete()
       .eq('room_id', currentRoom)
       .eq('user_id', user.id);
@@ -142,7 +141,7 @@ export function useVoiceRooms() {
     });
 
     await supabase
-      .from('voice_room_participants')
+      .from('voice_participants')
       .update({ is_muted: newMuted })
       .eq('room_id', currentRoom)
       .eq('user_id', user.id);
@@ -164,7 +163,7 @@ export function useVoiceRooms() {
     // Subscribe to participant changes
     const participantsChannel = supabase
       .channel('voice-participants-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'voice_room_participants' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'voice_participants' }, (payload) => {
         const roomId = (payload.new as any)?.room_id || (payload.old as any)?.room_id;
         if (roomId) {
           fetchParticipants(roomId);
