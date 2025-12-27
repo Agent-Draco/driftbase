@@ -17,12 +17,12 @@ export default function ProcessesPage() {
   const { toast } = useToast();
   
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [stepsText, setStepsText] = useState('');
 
   const handleAddProcess = async () => {
-    if (!name.trim()) {
-      toast({ title: 'Please enter a name', variant: 'destructive' });
+    if (!title.trim()) {
+      toast({ title: 'Please enter a title', variant: 'destructive' });
       return;
     }
 
@@ -32,14 +32,14 @@ export default function ProcessesPage() {
       return;
     }
 
-    const { error } = await createProcess(name, steps);
+    const { error } = await createProcess(title, steps);
 
     if (error) {
       toast({ title: 'Failed to create process', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Process created!' });
       setIsAddOpen(false);
-      setName('');
+      setTitle('');
       setStepsText('');
     }
   };
@@ -72,10 +72,10 @@ export default function ProcessesPage() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Name</Label>
+                  <Label>Title</Label>
                   <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     placeholder="Sleepover Planning Process"
                   />
                 </div>
@@ -114,15 +114,18 @@ export default function ProcessesPage() {
               <Card key={process.id} className="overflow-hidden border-border shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <CardTitle className="text-xl font-bold text-card-foreground">
-                      {process.name}
-                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{process.icon}</span>
+                      <CardTitle className="text-xl font-bold text-card-foreground">
+                        {process.title}
+                      </CardTitle>
+                    </div>
                     <Badge variant="outline" className="text-xs">
                       {process.steps.length} steps
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Created by {process.creator?.display_name || process.creator?.username || 'Unknown'}
+                    Created by {process.creator?.display_name || 'Unknown'}
                   </p>
                 </CardHeader>
                 <CardContent>

@@ -17,24 +17,26 @@ export default function TraditionsPage() {
   const { toast } = useToast();
   
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [icon, setIcon] = useState('🎉');
 
   const handleAddTradition = async () => {
-    if (!name.trim()) {
-      toast({ title: 'Please enter a name', variant: 'destructive' });
+    if (!title.trim()) {
+      toast({ title: 'Please enter a title', variant: 'destructive' });
       return;
     }
 
-    const { error } = await createTradition(name, description);
+    const { error } = await createTradition(title, description, icon);
 
     if (error) {
       toast({ title: 'Failed to create tradition', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Tradition created!' });
       setIsAddOpen(false);
-      setName('');
+      setTitle('');
       setDescription('');
+      setIcon('🎉');
     }
   };
 
@@ -66,10 +68,19 @@ export default function TraditionsPage() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Name</Label>
+                  <Label>Icon</Label>
                   <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={icon}
+                    onChange={(e) => setIcon(e.target.value)}
+                    placeholder="🎉"
+                    className="w-20 text-center text-2xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     placeholder="Midnight Snack Run"
                   />
                 </div>
@@ -112,12 +123,12 @@ export default function TraditionsPage() {
                 >
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary/20 text-secondary shadow-sm transition-transform group-hover:scale-110">
-                        <Sparkles className="h-6 w-6" />
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary/20 text-2xl shadow-sm transition-transform group-hover:scale-110">
+                        {tradition.icon || '🎉'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-card-foreground">
-                          {tradition.name}
+                          {tradition.title}
                         </h3>
                         {tradition.description && (
                           <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
@@ -127,12 +138,14 @@ export default function TraditionsPage() {
                         <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Heart className="h-3 w-3" />
-                            {tradition.creator?.display_name || tradition.creator?.username || 'Unknown'}
+                            {tradition.creator?.display_name || 'Unknown'}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(tradition.created_at), "MMM yyyy")}
-                          </span>
+                          {tradition.created_at && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(tradition.created_at), "MMM yyyy")}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

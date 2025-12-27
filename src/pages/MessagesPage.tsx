@@ -46,7 +46,7 @@ export default function MessagesPage() {
     return (
       <div className="flex h-screen flex-col">
         <PageHeader
-          title={partner?.display_name || partner?.username || 'Private Chat'}
+          title={partner?.display_name || 'Private Chat'}
           subtitle="Direct message"
           icon={
             <Button variant="ghost" size="icon" onClick={() => navigate('/messages')}>
@@ -108,7 +108,7 @@ export default function MessagesPage() {
             <Card key={profile.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/messages/${profile.id}`)}>
               <CardContent className="p-4 flex items-center gap-3">
                 <Avatar><AvatarImage src={profile.avatar_url || undefined} /><AvatarFallback>{getInitials(profile.display_name)}</AvatarFallback></Avatar>
-                <div className="flex-1"><p className="font-medium">{profile.display_name || profile.username}</p></div>
+                <div className="flex-1"><p className="font-medium">{profile.display_name}</p></div>
               </CardContent>
             </Card>
           ))}

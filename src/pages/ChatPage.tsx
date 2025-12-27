@@ -87,14 +87,14 @@ export default function ChatPage() {
                   id: message.id,
                   content: message.content,
                   sender: {
-                    id: message.sender_id,
-                    name: message.profiles?.display_name || message.profiles?.username || 'Unknown',
-                    initials: getInitials(message.profiles?.display_name || message.profiles?.username),
+                    id: message.user_id,
+                    name: message.profiles?.display_name || 'Unknown',
+                    initials: getInitials(message.profiles?.display_name),
                     color: 'bg-primary text-primary-foreground',
                     avatar_url: message.profiles?.avatar_url || undefined,
                   },
-                  timestamp: new Date(message.created_at),
-                  isOwn: message.sender_id === user?.id,
+                  timestamp: new Date(message.created_at || Date.now()),
+                  isOwn: message.user_id === user?.id,
                 }}
               />
             ))

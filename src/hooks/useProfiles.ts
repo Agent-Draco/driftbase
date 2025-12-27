@@ -4,12 +4,12 @@ import { useAuth } from '@/hooks/useAuth';
 
 export interface Profile {
   id: string;
-  username: string | null;
-  display_name: string | null;
+  display_name: string;
   bio: string | null;
   avatar_url: string | null;
-  status: 'online' | 'away' | 'offline';
-  created_at: string;
+  is_online: boolean | null;
+  last_seen: string | null;
+  created_at: string | null;
 }
 
 export function useProfiles() {
@@ -63,7 +63,7 @@ export function useProfiles() {
     };
   }, [user]);
 
-  const onlineProfiles = profiles.filter(p => p.status === 'online');
+  const onlineProfiles = profiles.filter(p => p.is_online);
   
   return { profiles, onlineProfiles, loading };
 }

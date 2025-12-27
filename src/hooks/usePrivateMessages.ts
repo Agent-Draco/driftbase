@@ -11,14 +11,12 @@ interface PrivateMessage {
   created_at: string;
   sender?: {
     id: string;
-    display_name: string | null;
-    username: string | null;
+    display_name: string;
     avatar_url: string | null;
   };
   recipient?: {
     id: string;
-    display_name: string | null;
-    username: string | null;
+    display_name: string;
     avatar_url: string | null;
   };
 }
@@ -45,8 +43,8 @@ export function usePrivateMessages(partnerId?: string) {
       .from('private_messages')
       .select(`
         *,
-        sender:profiles!private_messages_sender_id_fkey (id, display_name, username, avatar_url),
-        recipient:profiles!private_messages_recipient_id_fkey (id, display_name, username, avatar_url)
+        sender:sender_id (id, display_name, avatar_url),
+        recipient:recipient_id (id, display_name, avatar_url)
       `)
       .or(`and(sender_id.eq.${user.id},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${user.id})`)
       .order('created_at', { ascending: true });
@@ -72,8 +70,8 @@ export function usePrivateMessages(partnerId?: string) {
       .from('private_messages')
       .select(`
         *,
-        sender:profiles!private_messages_sender_id_fkey (id, display_name, username, avatar_url),
-        recipient:profiles!private_messages_recipient_id_fkey (id, display_name, username, avatar_url)
+        sender:sender_id (id, display_name, avatar_url),
+        recipient:recipient_id (id, display_name, avatar_url)
       `)
       .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
       .order('created_at', { ascending: false });
@@ -96,7 +94,7 @@ export function usePrivateMessages(partnerId?: string) {
 
           conversationMap.set(partnerIdVal, {
             partnerId: partnerIdVal,
-            partnerName: partner?.display_name || partner?.username || 'Unknown',
+            partnerName: partner?.display_name || 'Unknown',
             partnerAvatar: partner?.avatar_url || null,
             lastMessage: msg.content,
             lastMessageTime: msg.created_at,
@@ -122,8 +120,8 @@ export function usePrivateMessages(partnerId?: string) {
       })
       .select(`
         *,
-        sender:profiles!private_messages_sender_id_fkey (id, display_name, username, avatar_url),
-        recipient:profiles!private_messages_recipient_id_fkey (id, display_name, username, avatar_url)
+        sender:sender_id (id, display_name, avatar_url),
+        recipient:recipient_id (id, display_name, avatar_url)
       `)
       .single();
 
