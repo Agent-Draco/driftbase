@@ -17,6 +17,7 @@ import HallOfShamePage from "./pages/HallOfShamePage";
 import ProcessesPage from "./pages/ProcessesPage";
 import TraditionsPage from "./pages/TraditionsPage";
 import VoicePage from "./pages/VoicePage";
+import MessagesPage from "./pages/MessagesPage";
 import { AppLayout } from "./components/layout/AppLayout";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,8 @@ const App = () => (
             <Route path="/processes" element={<WithLayout><ProcessesPage /></WithLayout>} />
             <Route path="/traditions" element={<WithLayout><TraditionsPage /></WithLayout>} />
             <Route path="/voice" element={<WithLayout><VoicePage /></WithLayout>} />
+            <Route path="/messages" element={<WithLayout><MessagesPage /></WithLayout>} />
+            <Route path="/messages/:partnerId" element={<WithLayout><MessagesPage /></WithLayout>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
