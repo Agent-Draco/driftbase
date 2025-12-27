@@ -14,101 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
-      achievements: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          description: string | null
-          icon: string | null
-          id: string
-          name: string
-          type: string
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-          type: string
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "achievements_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      admin_emails: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-        }
-        Relationships: []
-      }
       hall_entries: {
         Row: {
-          achievement_id: string
           created_at: string | null
           created_by: string | null
+          custom_badge_color: string | null
           description: string | null
+          folder_id: string
+          icon: string | null
           id: string
-          sleepover_id: string
-          type: string
-          winner_id: string
+          member_id: string
+          title: string
         }
         Insert: {
-          achievement_id: string
           created_at?: string | null
           created_by?: string | null
+          custom_badge_color?: string | null
           description?: string | null
+          folder_id: string
+          icon?: string | null
           id?: string
-          sleepover_id: string
-          type: string
-          winner_id: string
+          member_id: string
+          title: string
         }
         Update: {
-          achievement_id?: string
           created_at?: string | null
           created_by?: string | null
+          custom_badge_color?: string | null
           description?: string | null
+          folder_id?: string
+          icon?: string | null
           id?: string
-          sleepover_id?: string
-          type?: string
-          winner_id?: string
+          member_id?: string
+          title?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "hall_entries_achievement_id_fkey"
-            columns: ["achievement_id"]
-            isOneToOne: false
-            referencedRelation: "achievements"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "hall_entries_created_by_fkey"
             columns: ["created_by"]
@@ -117,86 +57,176 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "hall_entries_sleepover_id_fkey"
+            foreignKeyName: "hall_entries_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "hall_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hall_entries_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hall_folders: {
+        Row: {
+          created_at: string | null
+          folder_type: string
+          id: string
+          sleepover_id: string | null
+          title: string
+          year_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          folder_type: string
+          id?: string
+          sleepover_id?: string | null
+          title: string
+          year_id: string
+        }
+        Update: {
+          created_at?: string | null
+          folder_type?: string
+          id?: string
+          sleepover_id?: string | null
+          title?: string
+          year_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hall_folders_sleepover_id_fkey"
             columns: ["sleepover_id"]
             isOneToOne: false
             referencedRelation: "sleepovers"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "hall_entries_winner_id_fkey"
-            columns: ["winner_id"]
+            foreignKeyName: "hall_folders_year_id_fkey"
+            columns: ["year_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "hall_years"
             referencedColumns: ["id"]
           },
         ]
+      }
+      hall_years: {
+        Row: {
+          created_at: string | null
+          id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          year?: number
+        }
+        Relationships: []
       }
       messages: {
         Row: {
           content: string
           created_at: string | null
           id: string
-          sender_id: string
+          user_id: string
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
-          sender_id: string
+          user_id: string
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
-          sender_id?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
+            foreignKeyName: "messages_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      private_messages: {
+      permission_forms: {
         Row: {
-          content: string
-          created_at: string
+          allergies: string | null
+          created_at: string | null
+          custom_fields: Json | null
+          digital_signature: string | null
+          emergency_contact: string | null
+          emergency_phone: string | null
           id: string
-          read_at: string | null
-          recipient_id: string
-          sender_id: string
+          medical_notes: string | null
+          medications: string | null
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          signed_at: string | null
+          sleepover_id: string
+          status: string | null
+          user_id: string
         }
         Insert: {
-          content: string
-          created_at?: string
+          allergies?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          digital_signature?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
           id?: string
-          read_at?: string | null
-          recipient_id: string
-          sender_id: string
+          medical_notes?: string | null
+          medications?: string | null
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          signed_at?: string | null
+          sleepover_id: string
+          status?: string | null
+          user_id: string
         }
         Update: {
-          content?: string
-          created_at?: string
+          allergies?: string | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          digital_signature?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
           id?: string
-          read_at?: string | null
-          recipient_id?: string
-          sender_id?: string
+          medical_notes?: string | null
+          medications?: string | null
+          parent_email?: string
+          parent_name?: string
+          parent_phone?: string
+          signed_at?: string | null
+          sleepover_id?: string
+          status?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "private_messages_recipient_id_fkey"
-            columns: ["recipient_id"]
+            foreignKeyName: "permission_forms_sleepover_id_fkey"
+            columns: ["sleepover_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "sleepovers"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "private_messages_sender_id_fkey"
-            columns: ["sender_id"]
+            foreignKeyName: "permission_forms_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -207,23 +237,26 @@ export type Database = {
         Row: {
           created_at: string | null
           created_by: string | null
+          icon: string | null
           id: string
-          name: string
-          steps: string[]
+          steps: Json
+          title: string
         }
         Insert: {
           created_at?: string | null
           created_by?: string | null
+          icon?: string | null
           id?: string
-          name: string
-          steps?: string[]
+          steps?: Json
+          title: string
         }
         Update: {
           created_at?: string | null
           created_by?: string | null
+          icon?: string | null
           id?: string
-          name?: string
-          steps?: string[]
+          steps?: Json
+          title?: string
         }
         Relationships: [
           {
@@ -240,97 +273,61 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string | null
-          display_name: string | null
+          display_name: string
           id: string
-          status: string | null
+          is_online: boolean | null
+          last_seen: string | null
           updated_at: string | null
-          username: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
-          display_name?: string | null
+          display_name: string
           id: string
-          status?: string | null
+          is_online?: boolean | null
+          last_seen?: string | null
           updated_at?: string | null
-          username?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
-          display_name?: string | null
+          display_name?: string
           id?: string
-          status?: string | null
+          is_online?: boolean | null
+          last_seen?: string | null
           updated_at?: string | null
-          username?: string | null
         }
         Relationships: []
       }
-      rsvps: {
-        Row: {
-          created_at: string | null
-          id: string
-          sleepover_id: string
-          status: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          sleepover_id: string
-          status?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          sleepover_id?: string
-          status?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "rsvps_sleepover_id_fkey"
-            columns: ["sleepover_id"]
-            isOneToOne: false
-            referencedRelation: "sleepovers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rsvps_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       sleepover_logs: {
         Row: {
+          content: string | null
           created_at: string | null
           created_by: string | null
           highlights: string[] | null
           id: string
-          notes: string | null
           sleepover_id: string
+          title: string
         }
         Insert: {
+          content?: string | null
           created_at?: string | null
           created_by?: string | null
           highlights?: string[] | null
           id?: string
-          notes?: string | null
           sleepover_id: string
+          title: string
         }
         Update: {
+          content?: string | null
           created_at?: string | null
           created_by?: string | null
           highlights?: string[] | null
           id?: string
-          notes?: string | null
           sleepover_id?: string
+          title?: string
         }
         Relationships: [
           {
@@ -358,7 +355,6 @@ export type Database = {
           id: string
           location: string | null
           title: string
-          year: number | null
         }
         Insert: {
           created_at?: string | null
@@ -368,7 +364,6 @@ export type Database = {
           id?: string
           location?: string | null
           title: string
-          year?: number | null
         }
         Update: {
           created_at?: string | null
@@ -378,7 +373,6 @@ export type Database = {
           id?: string
           location?: string | null
           title?: string
-          year?: number | null
         }
         Relationships: [
           {
@@ -395,22 +389,25 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           description: string | null
+          icon: string | null
           id: string
-          name: string
+          title: string
         }
         Insert: {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          icon?: string | null
           id?: string
-          name: string
+          title: string
         }
         Update: {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          icon?: string | null
           id?: string
-          name?: string
+          title?: string
         }
         Relationships: [
           {
@@ -422,38 +419,38 @@ export type Database = {
           },
         ]
       }
-      voice_room_participants: {
+      voice_participants: {
         Row: {
           id: string
           is_muted: boolean | null
-          joined_at: string
+          joined_at: string | null
           room_id: string
           user_id: string
         }
         Insert: {
           id?: string
           is_muted?: boolean | null
-          joined_at?: string
+          joined_at?: string | null
           room_id: string
           user_id: string
         }
         Update: {
           id?: string
           is_muted?: boolean | null
-          joined_at?: string
+          joined_at?: string | null
           room_id?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "voice_room_participants_room_id_fkey"
+            foreignKeyName: "voice_participants_room_id_fkey"
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "voice_rooms"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "voice_room_participants_user_id_fkey"
+            foreignKeyName: "voice_participants_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -463,42 +460,34 @@ export type Database = {
       }
       voice_rooms: {
         Row: {
-          created_at: string
-          created_by: string | null
+          created_at: string | null
+          description: string | null
           id: string
           is_active: boolean | null
           name: string
         }
         Insert: {
-          created_at?: string
-          created_by?: string | null
+          created_at?: string | null
+          description?: string | null
           id?: string
           is_active?: boolean | null
           name: string
         }
         Update: {
-          created_at?: string
-          created_by?: string | null
+          created_at?: string | null
+          description?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "voice_rooms_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      is_admin_user: { Args: { user_email: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
